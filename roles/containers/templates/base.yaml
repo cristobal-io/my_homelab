@@ -1,0 +1,12 @@
+version: '3'
+
+{% if not app_cidr == "" %}
+networks:
+  app:
+    driver: macvlan
+    driver_opts:
+      parent: app
+    ipam:
+      config:
+        - subnet: {{ app_cidr }}
+{% endif %}

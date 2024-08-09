@@ -1,0 +1,54 @@
+version: '3'
+services:
+  photoprism_mariadb:
+    container_name: photoprism-mariadb
+    image: mariadb:latest
+    restart: unless-stopped
+    volumes:
+      - {{ docker_dir }}/photoprism/db:/var/lib/mysql
+    environment:
+      - TZ={{ timezone }}
+      - MYSQL_ROOT_PASSWORD={{ photoprism.mysql.root_password }}
+      - MYSQL_DATABASE={{ photoprism.mysql.db }}
+      - MYSQL_USER={{ photoprism.mysql.user }}
+      - MYSQL_PASSWORD={{ photoprism.mysql.password }}
+
+  photoprism:
+    container_name: photoprism
+    image: photoprism/photoprism:latest
+    restart: unless-stopped
+    ports:
+      - 2342:2342
+    volumes:
+      - {{ docker_dir }}/photoprism/app:/photoprism
+    environment:
+      - PUID={{ guid }}
+      - PGID={{ guid }}
+      - PHOTOPRISM_GID={{ guid }}
+      - PHOTOPRISM_UID={{ guid }}
+      - TZ={{ timezone }}
+      - PHOTOPRISM_ADMIN_PASSWORD={{ photoprism.password }}
+      - PHOTOPRISM_SITE_URL=http://localhost:2342
+      - PHOTOPRISM_EXPERIMENTAL=false
+      - PHOTOPRISM_HTTP_COMPRESSION=gzip
+      - PHOTOPRISM_DATABASE_DRIVER=mysql
+      - PHOTOPRISM_DATABASE_SERVER=photoprism-mariadb:3306
+      - PHOTOPRISM_AUTH_MODE="public"
+      - PHOTOPRISM_DATABASE_NAME={{ photoprism.mysql.db }}
+      - PHOTOPRISM_DATABASE_USER={{ photoprism.mysql.user }}
+      - PHOTOPRISM_DATABASE_PASSWORD={{ photoprism.mysql.password }}
+      - PHOTOPRISM_DISABLE_CHOWN=false
+      - PHOTOPRISM_DISABLE_BACKUPS=true
+      - PHOTOPRISM_DISABLE_WEBDAV=false
+      - PHOTOPRISM_DETECT_NSFW=true
+      - PHOTOPRISM_UPLOAD_NSFW=false
+      - PHOTOPRISM_DEBUG=true
+      - PHOTOPRISM_THUMB_FILTER=lanczos
+      - PHOTOPRISM_THUMB_UNCACHED=true
+      - PHOTOPRISM_THUMB_SIZE=2048
+      - PHOTOPRISM_THUMB_SIZE_UNCACHED=7680
+      - PHOTOPRISM_JPEG_SIZE=7680
+      - PHOTOPRISM_JPEG_QUALITY=92
+      - TF_CPP_MIN_LOG_LEVEL=0
+      - PHOTOPRISM_FFMPEG_ENCODER=h264_qsv
+      - PHOTOPRISM_INIT=tensorflow-amd64-avx2

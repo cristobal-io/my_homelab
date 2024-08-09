@@ -1,0 +1,16 @@
+version: '3'
+services:
+  deconz:
+    container_name: deconz
+    image: deconzcommunity/deconz
+    restart: always
+    networks:
+      app:
+        ipv4_address: {{ app_base }}.25
+    volumes:
+      - "{{ docker_dir }}/deconz:/opt/deCONZ"
+    devices:
+      - /dev/ttyACM0
+    environment:
+      - DECONZ_VNC_MODE=1
+      - TZ={{ timezone }}

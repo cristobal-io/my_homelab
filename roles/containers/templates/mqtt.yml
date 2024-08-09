@@ -1,0 +1,11 @@
+version: '3'
+services:
+  mqtt:
+    container_name: mqtt
+    image: eclipse-mosquitto
+    networks:
+      app:
+        ipv4_address: {{ app_base }}.13
+    volumes:
+      - "{{ docker_dir }}/mosquitto:/mosquitto"
+    restart: always

@@ -8,11 +8,11 @@
 
 - name: Install docker module for Python
   pip:
-    name: 
+    name:
       - docker
       - docker-compose
 
-- name: Make sure that the docker folders exists
+- name: Make sure that the docker folders exist
   ansible.builtin.file:
     path: "{{ item }}"
     owner: "{{ username }}"
@@ -22,15 +22,25 @@
     - "{{ docker_compose_dir }}"
     - "{{ docker_dir }}"
 
-- name: Copy the compose file
-  template: 
-    src: templates/compose.yaml
-    dest: "{{ docker_compose_dir }}/compose.yaml"
+- name: Include variables for each service
+  include_vars: "{{ item }}"
+  loop: "{{ services }}"
+  when: lookup('file', item + '.yml') is not none
   vars:
-    app_cidr: "{{ (networks | selectattr('name', '==', 'app') | map(attribute='cidr') | first) | default('') }}"
-    app_base: "{{ (networks | selectattr('name', '==', 'app') | map(attribute='base') | first) | default('') }}"
+    item: "group_vars/{{ item }}.yml"
 
-- name: Docker-compose up
+- name: Deploy services using individual compose files
+  template:
+    src: "templates/{{ item }}.yml"
+    dest: "{{ docker_compose_dir }}/{{ item }}.yml"
+  loop: "{{ services }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Docker-compose up for each service
   community.docker.docker_compose:
     project_src: "{{ docker_compose_dir }}"
-
+    files: "{{ item }}.yml"
+  loop: "{{ services }}"
+  loop_control:
+    label: "{{ item }}"
