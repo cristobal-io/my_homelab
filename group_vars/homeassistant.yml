@@ -1,0 +1,6 @@
+homeassistant_timezone: "America/New_York"
+homeassistant_version: "stable"
+homeassistant_ports:
+  - "8123:8123"
+homeassistant_volumes:
+  - "/srv/docker/homeassistant:/config"

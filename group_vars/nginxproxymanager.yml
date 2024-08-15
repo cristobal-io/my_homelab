@@ -1,0 +1,8 @@
+nginxproxymanager_version: "latest"
+nginxproxymanager_ports:
+  - "80:80"
+  - "81:81"
+  - "443:443"
+nginxproxymanager_volumes:
+  - "/srv/docker/nginxproxymanager/data:/data"
+  - "/srv/docker/nginxproxymanager/letsencrypt:/etc/letsencrypt"
