@@ -1,6 +1,14 @@
 #
 # Misc
 #
+username: crgomo
+
+raid_disks:
+  - /dev/sda
+  - /dev/sdb
+  - /dev/sdd
+  - /dev/sdf
+
 hostname: '{{ inventory_hostname }}'
 
 timezone: Europe/Amsterdam
@@ -11,8 +19,6 @@ locale: en_US.UTF-8
 
 keyboard_layout: us
 
-username: notthebee
-
 shell: /usr/bin/fish
 
 dotfiles_repo: https://github.com/notthebee/dotfiles
@@ -21,8 +27,8 @@ guid: 1000
 
 #
 # Networking
-# 
-tailscale_enabled: yes 
+#
+tailscale_enabled: yes
 
 tailscale_exit_node: no
 
@@ -60,6 +66,15 @@ services:
 #
 # Packages
 #
+
+essential_packages:
+  - vim
+  - glances
+  - neofetch
+  - tmux
+  - speedtest-cli
+
+
 extra_packages:
   - fish
   - iperf3
@@ -68,9 +83,7 @@ extra_packages:
   - stow
   - exa
   - git
-  - neofetch
   - neovim
-  - tmux
   - mosh
   - rsync
   - lm-sensors
