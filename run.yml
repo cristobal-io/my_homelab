@@ -2,16 +2,13 @@
 #
 # Tasks and roles for all hosts
 #
-- hosts: mona
-  gather_facts: no
+  # pre_tasks:
+  #     - import_tasks: tasks/ssh_juggle_port.yml
+  #       tags:
+  #           - always
+  #           - port
 
-  pre_tasks:
-      - import_tasks: tasks/ssh_juggle_port.yml
-        tags:
-            - always
-            - port
-
-- hosts: fleet
+- hosts: home
   become: yes
 
   roles:
