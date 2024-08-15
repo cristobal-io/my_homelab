@@ -1,5 +1,5 @@
 ---
-- name: Update and upgrade packages 
+- name: Update and upgrade packages
   apt:
     update_cache: yes
     upgrade: yes
@@ -14,6 +14,11 @@
   reboot:
     msg: Rebooting due to a kernel update
   when: reboot_required_file.stat.exists
+
+- name: Install essential packages
+  apt:
+    name: "{{ essential_packages }}"
+    state: latest
 
 - name: Install extra packages
   package:
