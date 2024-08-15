@@ -1,0 +1,49 @@
+---
+- name: Install mdadm package
+  apt:
+    name: mdadm
+    state: present
+
+- name: Create RAID 5 array
+  command: mdadm --create /dev/md0 --level=5 --raid-devices={{ raid_disks | length }} {{ raid_disks | join(' ') }}
+  args:
+    creates: /dev/md0
+
+- name: Check if mdadm.conf exists
+  stat:
+    path: /etc/mdadm/mdadm.conf
+  register: mdadm_conf_file
+
+- name: Create mdadm.conf to save RAID configuration
+  shell: "mdadm --detail --scan >> /etc/mdadm/mdadm.conf"
+  when: not mdadm_conf_file.stat.exists
+
+- name: Update initramfs to include new mdadm.conf
+  command: update-initramfs -u
+
+- name: Format the RAID array with ext4 filesystem
+  filesystem:
+    fstype: ext4
+    dev: /dev/md0
+
+- name: Create a mount point for the RAID array
+  file:
+    path: /mnt/raid
+    state: directory
+
+- name: Mount the RAID array
+  mount:
+    path: /mnt/raid
+    src: /dev/md0
+    fstype: ext4
+    state: mounted
+
+- name: Ensure RAID array is mounted after reboot
+  mount:
+    path: /mnt/raid
+    src: /dev/md0
+    fstype: ext4
+    opts: defaults
+    dump: 0
+    passno: 2
+    state: present
