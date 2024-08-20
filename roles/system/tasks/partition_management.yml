@@ -1,0 +1,87 @@
+---
+- name: Check if the Docker logical volume exists
+  command: "lvdisplay /dev/{{ lvm_vg_name }}/{{ docker_lv_name }}"
+  register: lv_check
+  ignore_errors: yes
+
+- name: Create a new logical volume for Docker if it doesn't exist
+  lvol:
+    vg: "{{ lvm_vg_name }}"
+    lv: "{{ docker_lv_name }}"
+    size: "{{ docker_lv_size }}"
+  when: lv_check.failed
+
+- name: Check if the encrypted volume is already formatted
+  command: "cryptsetup status {{ encrypted_name }}"
+  register: crypt_check
+  ignore_errors: yes
+
+- name: Encrypt the new logical volume with LUKS if not already encrypted
+  command: "echo '{{ encryption_passphrase }}' | cryptsetup luksFormat /dev/{{ lvm_vg_name }}/{{ docker_lv_name }}"
+  when: crypt_check.failed
+  no_log: true
+
+- name: Open the encrypted volume
+  command: "echo '{{ encryption_passphrase }}' | cryptsetup luksOpen /dev/{{ lvm_vg_name }}/{{ docker_lv_name }} {{ encrypted_name }}"
+  args:
+    creates: "/dev/mapper/{{ encrypted_name }}"
+  no_log: true
+
+- name: Check if the encrypted volume is already formatted with ext4
+  command: "blkid /dev/mapper/{{ encrypted_name }}"
+  register: fs_check
+  ignore_errors: yes
+
+- name: Format the encrypted volume with ext4 if not already formatted
+  filesystem:
+    fstype: ext4
+    dev: "/dev/mapper/{{ encrypted_name }}"
+  when: fs_check.failed
+
+- name: Create mount point for encrypted Docker volume
+  file:
+    path: "{{ encrypted_mount_point }}"
+    state: directory
+
+- name: Mount the encrypted Docker volume
+  mount:
+    src: "/dev/mapper/{{ encrypted_name }}"
+    path: "{{ encrypted_mount_point }}"
+    fstype: ext4
+    state: mounted
+
+- name: Add the encrypted volume to /etc/fstab
+  lineinfile:
+    path: /etc/fstab
+    line: "/dev/mapper/{{ encrypted_name }} {{ encrypted_mount_point }} ext4 defaults 0 2"
+    state: present
+
+- name: Add the encrypted volume to /etc/crypttab
+  lineinfile:
+    path: /etc/crypttab
+    line: "{{ encrypted_name }} /dev/{{ lvm_vg_name }}/{{ docker_lv_name }} none luks"
+    state: present
+
+- name: Ensure Docker data directory exists
+  file:
+    path: "{{ docker_data_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Ensure backup directory exists on RAID5 array
+  file:
+    path: "{{ backup_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Deploy the backup script
+  template:
+    src: "backup_docker_data.sh"
+    dest: "/usr/local/bin/backup_docker_data.sh"
+    mode: "0755"
+
+- name: Schedule hourly backups with cron
+  cron:
+    name: "Hourly Docker data backup"
+    minute: "0"
+    job: "/usr/local/bin/backup_docker_data.sh"

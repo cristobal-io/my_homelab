@@ -1,0 +1,8 @@
+m2_device: "/dev/nvme0n1"
+lvm_vg_name: "ubuntu-vg"
+docker_lv_name: "docker_lv"
+docker_lv_size: "400G"
+encrypted_name: "encrypted_docker_lv"
+encrypted_mount_point: "/mnt/encrypted_data"
+backup_dir: "/mnt/raid/backup/docker_data"
+encryption_passphrase: "{{ vault_encryption_passphrase }}"

@@ -1,4 +1,4 @@
----
-- name: Apply netplan config
-  command:
-    cmd: netplan apply
+# ---
+# - name: Apply netplan config
+#   command:
+#     cmd: netplan apply

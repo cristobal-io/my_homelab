@@ -2,7 +2,7 @@
 # Misc
 #
 username: crgomo
-
+ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC39mmZTCLFZg0DLMDIhq95WiTw13G4BEBL1hkSCKMj2egRI+SwB/68pa356pTWiX+T2TrjDNra5ia6SMdky9Z9oe9bY+E8G6cUok2Nh6fCGKcsAEhGANKTAEUHjNNp08y0Ive/Yts1EUZcjZsuXSYLURERqskeCrrbM+ius4f7HjflD2fvCEn0hxiHG/k1GnsBiALpkxk9T7XhArj/lSu5ro7ePEUr/fljvEBvMUWg/SkCWfd/jKQrEh9qFlMqw/GuFXWs0WFsqiiqrpaOX4GmsP4UppefC5s2tmA8xC2fdSVheXZ7RiPmTxetG/qs4wP10CtUaWsQtIcTWb95fwst cristobal@cristobal.local"
 raid_disks:
   - /dev/sda
   - /dev/sdb
@@ -28,7 +28,7 @@ guid: 1000
 #
 # Networking
 #
-tailscale_enabled: yes
+tailscale_enabled: false
 
 tailscale_exit_node: no
 
@@ -51,17 +51,17 @@ networks:
 # Docker apps
 #
 #
-docker_dir: /opt/docker/data
 
-docker_compose_dir: /opt/docker/compose
+docker_dir: "{{ encrypted_mount_point }}/docker/data"
+docker_compose_dir: "{{ encrypted_mount_point }}/docker/compose"
 
 services:
-  - homeassistant
-  - mqtt
+  # - homeassistant
+  # - mqtt
   - nginxproxymanager
-  - deconz
-  - photoprism
-  - syncthing
+  # - deconz
+  # - photoprism
+  # - syncthing
 
 #
 # Packages
@@ -78,27 +78,25 @@ essential_packages:
 extra_packages:
   - fish
   - iperf3
-  - speedtest-cli
   - htop
   - stow
-  - exa
   - git
   - neovim
-  - mosh
+  # - mosh
   - rsync
   - lm-sensors
-  - iotop
-  - ncdu
+  # - iotop
+  # - ncdu
 
 #
 # Email credentials (for notifications)
 #
 
-email: moe@notthebe.ee
+email: me@cristobal.io
 
 email_login: '{{ email }}'
 
-email_smtp_host: smtp.mailbox.org
+email_smtp_host: cp1.obambu.com
 
 email_smtp_port: 465
 

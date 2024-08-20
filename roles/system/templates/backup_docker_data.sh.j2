@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Backup base directories
+hourly_dir="{{ backup_dir }}/hourly"
+daily_dir="{{ backup_dir }}/daily"
+weekly_dir="{{ backup_dir }}/weekly"
+monthly_dir="{{ backup_dir }}/monthly"
+
+# Source directory
+src_dir="{{ docker_data_dir }}/"
+
+# Create hourly backup
+rsync -avh --delete --link-dest="${hourly_dir}/current" "${src_dir}" "${hourly_dir}/$(date +'%Y-%m-%d_%H')"
+ln -nfs "$(date +'%Y-%m-%d_%H')" "${hourly_dir}/current"
+
+# Rotate backups
+# Daily rotation
+if [ "$(date +'%H')" == "00" ]; then
+    rsync -avh --delete --link-dest="${daily_dir}/current" "${src_dir}" "${daily_dir}/$(date +'%Y-%m-%d')"
+    ln -nfs "$(date +'%Y-%m-%d')" "${daily_dir}/current"
+    find "${hourly_dir}" -mindepth 1 -maxdepth 1 -type d -mmin +1440 -exec rm -rf {} \;
+fi
+
+# Weekly rotation
+if [ "$(date +'%u')" == "7" ]; then
+    rsync -avh --delete --link-dest="${weekly_dir}/current" "${src_dir}" "${weekly_dir}/week_$(date +'%U')"
+    ln -nfs "week_$(date +'%U')" "${weekly_dir}/current"
+    find "${daily_dir}" -mindepth 1 -maxdepth 1 -type d -mtime +7 -exec rm -rf {} \;
+fi
+
+# Monthly rotation
+if [ "$(date +'%d')" == "01" ]; then
+    rsync -avh --delete --link-dest="${monthly_dir}/current" "${src_dir}" "${monthly_dir}/$(date +'%Y-%m')"
+    ln -nfs "$(date +'%Y-%m')" "${monthly_dir}/current"
+    find "${weekly_dir}" -mindepth 1 -maxdepth 1 -type d -mtime +31 -exec rm -rf {} \;
+fi

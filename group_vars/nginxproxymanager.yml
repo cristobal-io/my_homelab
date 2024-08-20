@@ -4,5 +4,5 @@ nginxproxymanager_ports:
   - "81:81"
   - "443:443"
 nginxproxymanager_volumes:
-  - "/srv/docker/nginxproxymanager/data:/data"
-  - "/srv/docker/nginxproxymanager/letsencrypt:/etc/letsencrypt"
+  - "{{ docker_dir }}/nginxproxymanager/data:/data"
+  - "{{ docker_dir }}/nginxproxymanager/letsencrypt:/etc/letsencrypt"

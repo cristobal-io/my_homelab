@@ -2,18 +2,13 @@ version: '3'
 services:
   nginxproxymanager:
     container_name: nginxproxymanager
-    image: jc21/nginx-proxy-manager:latest
+    image: jc21/nginx-proxy-manager:{{ nginxproxymanager_version }}
     {% if not app_cidr == "" %}
     networks:
       app:
         ipv4_address: {{ app_base }}.24
     {% else %}
-    ports:
-      - "80:80"
-      - "81:81"
-      - "443:443"
+    ports: "{{ nginxproxymanager_ports }}"
     {% endif %}
     restart: always
-    volumes:
-      - "{{ docker_dir }}/nginxproxymanager/data:/data"
-      - "{{ docker_dir }}/nginxproxymanager/letsencrypt:/etc/letsencrypt"
+    volumes: "{{ nginxproxymanager_volumes }}"
