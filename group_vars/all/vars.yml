@@ -52,8 +52,8 @@ networks:
 #
 #
 
-docker_dir: "{{ encrypted_mount_point }}/docker/data"
-docker_compose_dir: "{{ encrypted_mount_point }}/docker/compose"
+docker_dir: "/opt/docker/data"
+docker_compose_dir: "/opt/docker/compose"
 
 services:
   # - homeassistant
