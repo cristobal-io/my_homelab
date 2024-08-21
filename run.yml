@@ -1,47 +1,49 @@
 ---
-#
-# Tasks and roles for all hosts
-#
-  # pre_tasks:
-  #     - import_tasks: tasks/ssh_juggle_port.yml
-  #       tags:
-  #           - always
-  #           - port
-
 - hosts: home
   become: yes
+  gather_facts: no
+
   pre_tasks:
+    - import_tasks: tasks/ssh_juggle_port.yml
+      tags:
+        - always
+        - port
+
+    - name: Gather facts after SSH port juggling
+      setup:
+
     - name: Include storage variables
       include_vars: group_vars/storage.yml
+
   roles:
-      #
-      # Basics
-      #
-      - role: system
-        tags:
-            - system
+    #
+    # Basics
+    #
+    - role: system
+      tags:
+        - system
 
-      - role: neovim
-        tags:
-            - neovim
+    # - role: neovim
+    #   tags:
+    #       - neovim
 
-      - role: geerlingguy.security
-        tags:
-            - security
+    - role: geerlingguy.security
+      tags:
+        - security
 
-      - role: geerlingguy.docker
-        tags:
-            - docker
+    - role: geerlingguy.docker
+      tags:
+        - docker
 
-      # - role: chriswayg.msmtp-mailer
-      #   tags:
-      #       - msmtp
+    # - role: chriswayg.msmtp-mailer
+    #   tags:
+    #       - msmtp
 
-      - name: containers
-        tags:
-          - containers
+    - name: containers
+      tags:
+        - containers
 
-      # - role: tailscale
-      #   when: tailscale_enabled | default(false)
-      #   tags:
-      #       - tailscale
+    # - role: tailscale
+    #   when: tailscale_enabled | default(false)
+    #   tags:
+    #       - tailscale

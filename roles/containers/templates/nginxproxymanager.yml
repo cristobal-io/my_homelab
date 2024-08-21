@@ -3,12 +3,18 @@ services:
   nginxproxymanager:
     container_name: nginxproxymanager
     image: jc21/nginx-proxy-manager:{{ nginxproxymanager_version }}
-    {% if not app_cidr == "" %}
+{% if app_cidr %}
     networks:
       app:
-        ipv4_address: {{ app_base }}.24
-    {% else %}
-    ports: "{{ nginxproxymanager_ports }}"
-    {% endif %}
+        ipv4_address: "{{ app_base }}.24"
+{% else %}
+    ports:
+{% for port in nginxproxymanager_ports %}
+      - "{{ port }}"
+{% endfor %}
+{% endif %}
     restart: always
-    volumes: "{{ nginxproxymanager_volumes }}"
+    volumes:
+{% for volume in nginxproxymanager_volumes %}
+      - "{{ volume }}"
+{% endfor %}

@@ -5,12 +5,19 @@
       - python3
       - python3-pip
     state: present
-
-- name: Install docker module for Python
+- name: Upgrade Python Docker SDK
   pip:
-    name:
-      - docker
-      - docker-compose
+    name: docker
+    state: latest
+# - name: Install docker module for Python
+#   pip:
+#     name:
+#       - docker
+#       - docker-compose
+# - name: Install docker-compose-plugin
+#   apt:
+#     name: docker-compose-plugin
+#     state: present
 
 - name: Make sure that the docker folders exist
   ansible.builtin.file:
@@ -22,15 +29,26 @@
     - "{{ docker_compose_dir }}"
     - "{{ docker_dir }}"
 
+- name: Ensure networks variable is defined
+  set_fact:
+    networks: "{{ networks | default([]) }}"
+
 - name: Include variables for each service
   include_vars:
-    file: "{{ item }}"
+    file: "{{ service_var_file }}"
   loop: "{{ services }}"
   loop_control:
-    loop_var: item
-  when: lookup('first_found', files=[ item + '.yml', 'default.yml' ], paths='group_vars') is not none
+    loop_var: service
   vars:
-    item: "group_vars/{{ item }}.yml"
+    service_var_file: "group_vars/{{ service }}.yml"
+
+- name: Set app_cidr and app_base for each service
+  set_fact:
+    app_cidr: "{{ (networks | selectattr('name', '==', service) | map(attribute='cidr') | first) | default('') }}"
+    app_base: "{{ (networks | selectattr('name', '==', service) | map(attribute='base') | first) | default('') }}"
+  loop: "{{ services }}"
+  loop_control:
+    loop_var: service
 
 - name: Deploy base Docker Compose configuration
   template:
@@ -39,20 +57,33 @@
 
 - name: Deploy services using individual compose files
   template:
-    src: "templates/{{ item }}.yml"
-    dest: "{{ docker_compose_dir }}/{{ item }}.yml"
+    src: "templates/{{ service }}.yml"
+    dest: "{{ docker_compose_dir }}/{{ service }}.yml"
   loop: "{{ services }}"
   loop_control:
-    loop_var: item
-    label: "{{ item }}"
+    loop_var: service
+    label: "{{ service }}"
+  vars:
+    app_cidr: "{{ app_cidr }}"
+    app_base: "{{ app_base }}"
 
+# - name: Docker-compose up for each service
+#   community.docker.docker_compose:
+#     project_src: "{{ docker_compose_dir }}"
+#     files:
+#       - "base.yml"
+#       - "{{ service }}.yml"
+#   loop: "{{ services }}"
+#   loop_control:
+#     loop_var: service
+#     label: "{{ service }}"
 - name: Docker-compose up for each service
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ docker_compose_dir }}"
     files:
       - "base.yml"
-      - "{{ item }}.yml"
+      - "{{ service }}.yml"
   loop: "{{ services }}"
   loop_control:
-    loop_var: item
-    label: "{{ item }}"
+    loop_var: service
+    label: "{{ service }}"

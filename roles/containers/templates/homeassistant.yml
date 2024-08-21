@@ -3,14 +3,14 @@ services:
   homeassistant:
     container_name: homeassistant
     image: homeassistant/home-assistant:stable
-    {% if not app_cidr == "" %}
+{% if not app_cidr == "" %}
     networks:
       app:
         ipv4_address: {{ app_base }}.18
-    {% else %}
+{% else %}
     ports:
       - "8123:8123"
-    {% endif %}
+{% endif %}
     restart: always
     volumes:
       - "{{ docker_dir }}/homeassistant:/config"
