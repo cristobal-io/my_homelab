@@ -1,70 +1,36 @@
 ---
-- name: SSH Port Juggle | Try connecting via SSH
+- name: SSH Port Juggle | Try connecting via SSH using the configured port from geerlingguy.security
   wait_for_connection:
     timeout: 5
+  vars:
+    ansible_ssh_port: "{{ security_ssh_port }}"
+  register: _ssh_port_security_result
   ignore_errors: true
-  register: _ssh_port_result
 
-- name: SSH Port Juggle | Set the ansible_port to the fallback default port
+- name: SSH Port Juggle | Log the port being used (custom)
+  debug:
+    msg: "Trying to connect using port {{ security_ssh_port }} (custom from security_ssh_port)"
+  when: _ssh_port_security_result is not failed
+
+- name: SSH Port Juggle | Set the ansible_port to the fallback default port (22)
   set_fact:
     ansible_ssh_port: "22"
-  when:
-    - _ssh_port_result is failed
+  when: _ssh_port_security_result is failed
 
-- name: SSH Port Juggle | Try connecting again
+- name: SSH Port Juggle | Log the port being used (fallback to 22)
+  debug:
+    msg: "Custom port connection failed. Trying to connect using port 22 (fallback)."
+  when: _ssh_port_security_result is failed
+
+- name: SSH Port Juggle | Try connecting again using the fallback port 22
   wait_for_connection:
     timeout: 5
   ignore_errors: true
   register: _ssh_port_default_result
-  when:
-    - _ssh_port_result is failed
+  when: _ssh_port_security_result is failed
 
-
-- name: SSH Port Juggle | Set the ansible_port to the fallback default port and credentials
-  set_fact:
-    ansible_ssh_port: "22"
-    ansible_ssh_user: "pi"
-    ansible_ssh_password: "raspberry"
+- name: SSH Port Juggle | Fail if neither port works
+  fail: msg="Neither the configured ansible_port {{ security_ssh_port }} nor the fallback port 22 were reachable."
   when:
-    - _ssh_port_result is failed
+    - _ssh_port_security_result is failed
     - _ssh_port_default_result is failed
-
-- name: Try default credentials (for Raspberry Pi)
-  wait_for_connection:
-    timeout: 5
-  ignore_errors: true
-  register: _ssh_port_default_cred_result
-  when:
-    - _ssh_port_result is failed
-    - _ssh_port_default_result is failed
-
-- name: SSH Port Juggle | Try root
-  set_fact:
-    ansible_ssh_port: "22"
-    ansible_ssh_user: "root"
-  when:
-    - _ssh_port_result is failed
-    - _ssh_port_default_result is failed
-    - _ssh_port_default_cred_result is failed
-
-
-- name: Try root
-  wait_for_connection:
-    timeout: 5
-  ignore_errors: true
-  register: _ssh_port_default_cred_result
-  when:
-    - _ssh_port_result is failed
-    - _ssh_port_default_result is failed
-    - _ssh_port_default_cred_result is failed
-
-- name: SSH Port Juggle | Fail
-  fail: msg="Neither the configured ansible_port {{ ansible_port }} nor the fallback port 22 were reachable"
-  when:
-    - _ssh_port_result is failed
-    - _ssh_port_default_result is defined
-    - _ssh_port_default_result is failed
-    - _ssh_port_default_cred_result is defined
-    - _ssh_port_default_cred_result is failed
-    - _ssh_port_root_result is defined
-    - _ssh_port_root_result is failed
