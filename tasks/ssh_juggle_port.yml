@@ -12,7 +12,12 @@
     msg: "Trying to connect using port {{ security_ssh_port }} (custom from security_ssh_port)"
   when: _ssh_port_security_result is not failed
 
-- name: SSH Port Juggle | Set the ansible_port to the fallback default port (22)
+- name: Set the ansible_ssh_port fact to the custom port
+  set_fact:
+    ansible_ssh_port: "{{ security_ssh_port }}"
+  when: _ssh_port_security_result is not failed
+
+- name: SSH Port Juggle | Set the ansible_ssh_port to the fallback default port (22)
   set_fact:
     ansible_ssh_port: "22"
   when: _ssh_port_security_result is failed
