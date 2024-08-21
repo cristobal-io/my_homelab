@@ -44,3 +44,8 @@
     user: root
     env: yes
     job: ""
+
+- name: Ignore PEP 668 because it's silly.
+  ansible.builtin.file:
+    path: /usr/lib/python3.12/EXTERNALLY-MANAGED
+    state: absent
