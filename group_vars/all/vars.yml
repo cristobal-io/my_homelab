@@ -73,6 +73,7 @@ essential_packages:
   - neofetch
   - tmux
   - speedtest-cli
+  - tree
 
 
 extra_packages:
