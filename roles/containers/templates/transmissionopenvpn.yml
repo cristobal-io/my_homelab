@@ -1,0 +1,32 @@
+version: '3'
+services:
+  transmission-openvpn:
+    container_name: transmission-openvpn
+    image: haugene/transmission-openvpn:latest
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - OPENVPN_PROVIDER=PIA
+      - OPENVPN_USERNAME={{ openvpn_username }}
+      - OPENVPN_PASSWORD={{ openvpn_password }}
+      - LOCAL_NETWORK=192.168.1.0/24
+      - PUID=1000
+      - PGID=1000
+      - TZ={{ timezone }}
+      - TRANSMISSION_WEB_UI=combustion
+      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+{% if app_cidr %}
+    networks:
+      app:
+        ipv4_address: "{{ app_base }}.24"
+{% else %}
+    ports:
+{% for port in transmissionopenvpn_ports %}
+      - "{{ port }}"
+{% endfor %}
+{% endif %}
+    restart: always
+    volumes:
+{% for volume in transmissionopenvpn_volumes %}
+      - "{{ volume }}"
+{% endfor %}

@@ -1,0 +1,10 @@
+openvpn_username: "p6030992"
+timezone: "Europe/Amsterdam"  # or your correct timezone
+transmissionopenvpn_ports:
+  - "9091:9091"
+  - "51413:51413"
+  - "51413:51413/udp"
+transmissionopenvpn_volumes:
+  - "{{ docker_dir }}/transmission-openvpn/config:/config"
+  - "{{ raid_dir }}/transmission-openvpn/data:/downloads"
+  - "{{ raid_dir }}/transmission-openvpn/data:/watch"

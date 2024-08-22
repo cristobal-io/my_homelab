@@ -54,11 +54,14 @@ tailscale_exit_node: no
 
 docker_dir: "/opt/docker/data"
 docker_compose_dir: "/opt/docker/compose"
+raid_dir: "/mnt/raid"
+
 
 services:
   # - homeassistant
   # - mqtt
   - nginxproxymanager
+  - transmissionopenvpn
   # - deconz
   # - photoprism
   # - syncthing

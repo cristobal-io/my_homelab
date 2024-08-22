@@ -5,15 +5,18 @@
       - python3
       - python3-pip
     state: present
+
 - name: Upgrade Python Docker SDK
   pip:
     name: docker
     state: latest
+
 # - name: Install docker module for Python
 #   pip:
 #     name:
 #       - docker
 #       - docker-compose
+
 # - name: Install docker-compose-plugin
 #   apt:
 #     name: docker-compose-plugin
@@ -29,10 +32,6 @@
     - "{{ docker_compose_dir }}"
     - "{{ docker_dir }}"
 
-- name: Ensure networks variable is defined
-  set_fact:
-    networks: "{{ networks | default([]) }}"
-
 - name: Include variables for each service
   include_vars:
     file: "{{ service_var_file }}"
@@ -41,6 +40,26 @@
     loop_var: service
   vars:
     service_var_file: "group_vars/{{ service }}.yml"
+
+- name: Gather all volumes from services
+  set_fact:
+    all_volumes: "{{ all_volumes | default([]) + vars[service + '_volumes'] }}"
+  loop: "{{ services }}"
+  loop_control:
+    loop_var: service
+
+- name: Ensure directories exist for volumes
+  ansible.builtin.file:
+    path: "{{ item.split(':')[0] }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+  loop: "{{ all_volumes }}"
+  when: item.startswith(raid_dir)
+
+- name: Ensure networks variable is defined
+  set_fact:
+    networks: "{{ networks | default([]) }}"
 
 - name: Set app_cidr and app_base for each service
   set_fact:
@@ -77,6 +96,7 @@
 #   loop_control:
 #     loop_var: service
 #     label: "{{ service }}"
+
 - name: Docker-compose up for each service
   community.docker.docker_compose_v2:
     project_src: "{{ docker_compose_dir }}"
