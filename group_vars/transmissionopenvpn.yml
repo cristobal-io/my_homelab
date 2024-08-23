@@ -6,5 +6,4 @@ transmissionopenvpn_ports:
   - "51413:51413/udp"
 transmissionopenvpn_volumes:
   - "{{ docker_dir }}/transmission-openvpn/config:/config"
-  - "{{ raid_dir }}/transmission-openvpn/data:/downloads"
-  - "{{ raid_dir }}/transmission-openvpn/data:/watch"
+  - "{{ raid_dir }}/transmission-openvpn:/data"
