@@ -1,0 +1,8 @@
+syncthing_ports:
+  - 8384:8384 # Web UI
+  - 22000:22000/tcp # TCP file transfers
+  - 22000:22000/udp # QUIC file transfers
+  - 21027:21027/udp # Receive local discovery broadcasts
+syncthing_volumes:
+  - "{{ docker_dir }}/syncthing:/var/syncthing"  # Syncthing's configuration and data
+  - "{{ raid_dir }}:/mnt/raid"  # Mapping your RAID to the container

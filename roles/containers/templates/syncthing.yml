@@ -7,11 +7,12 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-    volumes:
-      - {{ docker_dir }}/syncthing:/var/syncthing
     ports:
-      - 8384:8384 # Web UI
-      - 22000:22000/tcp # TCP file transfers
-      - 22000:22000/udp # QUIC file transfers
-      - 21027:21027/udp # Receive local discovery broadcasts
+{% for port in syncthing_ports %}
+      - "{{ port }}"
+{% endfor %}
+    volumes:
+{% for volume in syncthing_volumes %}
+      - "{{ volume }}"
+{% endfor %}
     restart: unless-stopped
