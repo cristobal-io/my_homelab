@@ -1,0 +1,4 @@
+openbooks_ports:
+  - "8080:80" # Web UI8080
+openbooks_volumes:
+  - "{{ docker_dir }}/openbooks/data:/app/data"

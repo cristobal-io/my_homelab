@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  openbooks:
+    image: ghcr.io/evan-buss/openbooks:latest
+    container_name: openbooks
+    ports:
+{% for port in openbooks_ports %}
+      - "{{ port }}"
+{% endfor %}
+    volumes:
+{% for volume in openbooks_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    command: server --name "openbooksx77" --dir "/books" --port "80"
+    restart: unless-stopped
+

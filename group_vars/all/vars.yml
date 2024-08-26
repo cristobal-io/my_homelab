@@ -65,6 +65,7 @@ services:
   # - deconz
   # - photoprism
   - syncthing
+  - openbooks
 
 #
 # Packages
