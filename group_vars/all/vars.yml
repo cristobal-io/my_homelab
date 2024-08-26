@@ -66,6 +66,7 @@ services:
   # - photoprism
   - syncthing
   - openbooks
+  - radarr
 
 #
 # Packages

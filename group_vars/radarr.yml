@@ -1,0 +1,6 @@
+radarr_ports:
+  - "7878:7878"
+radarr_volumes:
+  - "{{ docker_dir }}/radarr:/config"
+  - "{{ raid_dir }}/media/movies:/movies" #optional
+  - "{{ raid_dir }}/transmission-openvpn/watch:/downloads" #optional
