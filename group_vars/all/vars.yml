@@ -28,7 +28,7 @@ guid: 1000
 #
 # Networking
 #
-tailscale_enabled: false
+tailscale_enabled: true
 
 tailscale_exit_node: no
 

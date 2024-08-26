@@ -1,25 +1,45 @@
-
-- name: Set a list of exposed networks
+- name: Set a list of exposed networks (if networks are defined)
   set_fact:
     tailscale_subnets: "{{ networks | selectattr('tailscale') | map(attribute='cidr') | join(',') }}"
+  when: networks is defined
+
+- name: Set an empty list of exposed networks (if networks are not defined)
+  set_fact:
+    tailscale_subnets: ""
+  when: networks is not defined
 
 - name: Get current tailscale status
-  changed_when: false
   register: tailscale_status_before
+  failed_when: tailscale_status_before.rc not in [0, 1]
+  changed_when: false
   ansible.builtin.command:
     cmd: tailscale status
+  ignore_errors: yes
 
-- name: Log in, enable tailscale and set up an exit node
-  changed_when: false
+- name: Ensure tailscale token is defined
+  fail:
+    msg: "Tailscale token is not defined. Please provide a valid token."
+  when: tailscale_token is not defined and (tailscale_status_before is not defined or 'Logged out' in tailscale_status_before.stdout)
+
+- name: Log in, enable tailscale, and set up an exit node
+  register: tailscale_up_result
   ansible.builtin.command:
     cmd: >-
-      tailscale up 
+      tailscale up
       --advertise-exit-node={{ tailscale_exit_node | default(false) | bool | lower }}
       --auth-key {{ tailscale_token }}
+      {% if tailscale_subnets %}
       --advertise-routes "{{ tailscale_subnets }}"
+      {% endif %}
+  when: tailscale_token is defined and (tailscale_status_before is not defined or 'Logged out' in tailscale_status_before.stdout)
 
 - name: Get tailscale status after the command
-  changed_when: tailscale_status_before.stdout != tailscale_status_after.stdout
   register: tailscale_status_after
   ansible.builtin.command:
     cmd: tailscale status
+  when: tailscale_up_result is not failed
+
+- name: Check if Tailscale status has changed
+  ansible.builtin.debug:
+    msg: "Tailscale status has changed."
+  when: tailscale_status_before.stdout != tailscale_status_after.stdout

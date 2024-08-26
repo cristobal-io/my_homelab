@@ -43,7 +43,7 @@
       tags:
         - containers
 
-    # - role: tailscale
-    #   when: tailscale_enabled | default(false)
-    #   tags:
-    #       - tailscale
+    - role: tailscale
+      when: tailscale_enabled | default(false)
+      tags:
+          - tailscale
