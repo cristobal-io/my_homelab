@@ -1,0 +1,4 @@
+homarr_volumes:
+  - "{{ docker_dir }}/homarr/config:/app/data/configs"
+homarr_ports:
+  - "7575:7575" # Web UI Port

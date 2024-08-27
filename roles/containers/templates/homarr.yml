@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    ports:
+{% for port in homarr_ports %}
+      - "{{ port }}"
+{% endfor %}
+    volumes:
+{% for volume in homarr_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    environment:
+      - PUID=1000 # Change to match your user's UID
+      - PGID=1000 # Change to match your user's GID
+    restart: unless-stopped
