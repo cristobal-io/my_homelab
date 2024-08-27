@@ -11,17 +11,6 @@
     name: docker
     state: latest
 
-# - name: Install docker module for Python
-#   pip:
-#     name:
-#       - docker
-#       - docker-compose
-
-# - name: Install docker-compose-plugin
-#   apt:
-#     name: docker-compose-plugin
-#     state: present
-
 - name: Make sure that the docker folders exist
   ansible.builtin.file:
     path: "{{ item }}"
@@ -48,14 +37,18 @@
   loop_control:
     loop_var: service
 
-- name: Ensure directories exist for volumes
+- name: Extract unique directories from volume mappings
+  set_fact:
+    all_directories: "{{ all_volumes | map('split', ':') | map('first') | unique }}"
+
+- name: Ensure all collected directories exist with correct permissions
   ansible.builtin.file:
-    path: "{{ item.split(':')[0] }}"
+    path: "{{ item | regex_replace('{{ raid_dir }}', raid_dir) | regex_replace('{{ docker_dir }}', docker_dir) }}"
     state: directory
     owner: "{{ username }}"
     group: "{{ username }}"
-  loop: "{{ all_volumes }}"
-  when: item.startswith(raid_dir)
+    mode: '0775'
+  loop: "{{ all_directories }}"
 
 - name: Ensure networks variable is defined
   set_fact:
@@ -73,11 +66,15 @@
   template:
     src: "templates/base.yml"
     dest: "{{ docker_compose_dir }}/base.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
 
 - name: Deploy services using individual compose files
   template:
     src: "templates/{{ service }}.yml"
     dest: "{{ docker_compose_dir }}/{{ service }}.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
   loop: "{{ services }}"
   loop_control:
     loop_var: service
@@ -85,17 +82,6 @@
   vars:
     app_cidr: "{{ app_cidr }}"
     app_base: "{{ app_base }}"
-
-# - name: Docker-compose up for each service
-#   community.docker.docker_compose:
-#     project_src: "{{ docker_compose_dir }}"
-#     files:
-#       - "base.yml"
-#       - "{{ service }}.yml"
-#   loop: "{{ services }}"
-#   loop_control:
-#     loop_var: service
-#     label: "{{ service }}"
 
 - name: Docker-compose up for each service
   community.docker.docker_compose_v2:

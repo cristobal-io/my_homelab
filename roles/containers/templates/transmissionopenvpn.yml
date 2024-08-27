@@ -15,6 +15,8 @@ services:
       - TZ={{ timezone }}
       - TRANSMISSION_WEB_UI=combustion
       - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+      - TRANSMISSION_RPC_USERNAME={{ transmission_username }}
+      - TRANSMISSION_RPC_PASSWORD={{ transmission_password  }}
 {% if app_cidr %}
     networks:
       app:

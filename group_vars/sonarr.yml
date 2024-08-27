@@ -1,0 +1,7 @@
+sonarr_ports:
+  - "8989:8989"
+
+sonarr_volumes:
+  - "{{ docker_dir }}/sonarr:/config"
+  - "{{ raid_dir }}/media/tv:/tv"
+  - "{{ raid_dir }}/media:/data"
