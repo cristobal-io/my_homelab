@@ -1,2 +1,2 @@
 [home]
-x77 ansible_host=192.168.1.240 ansible_user=crgomo ansible_connection=ssh ansible_ssh_private_key_file=/home/cristobal/.ssh/id_rsa_macbook_pro_2018
+x77 ansible_host=x77.mastodon-wahoo.ts.net ansible_user=crgomo ansible_connection=ssh ansible_ssh_private_key_file=/home/cristobal/.ssh/id_rsa_macbook_pro_2018
