@@ -1,0 +1,2 @@
+mysql_volumes:
+  - "{{ docker_dir }}/mysql_data:/var/lib/mysql"  # Syncthing's configuration and data

@@ -70,6 +70,7 @@ services:
   - prowlarr
   - homarr
   - sonarr
+  - mysql
 
 #
 # Packages

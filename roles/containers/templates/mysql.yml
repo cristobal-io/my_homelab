@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "{{ mysqlrootpassword }}"
+      MYSQL_DATABASE: monica
+      MYSQL_USER: monicauser
+      MYSQL_PASSWORD: "{{ mysqlmonicapassword }}"
+    volumes:
+{% for volume in mysql_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    networks:
+      - mysql_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  mysql_network:
