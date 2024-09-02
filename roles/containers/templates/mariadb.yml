@@ -1,0 +1,29 @@
+---
+services:
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: mariadb
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+      MYSQL_ROOT_PASSWORD: {{ mysqlrootpassword }}
+      MYSQL_DATABASE: monica #optional
+      MYSQL_USER: monicauser #optional
+      MYSQL_PASSWORD: {{ mysqlmonicapassword }} #optional
+    volumes:
+{% for volume in mariadb_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    ports:
+      - 3306:3306
+    restart: unless-stopped
+    networks:
+      - mariadb_network
+
+
+volumes:
+  mariadb_data:
+
+networks:
+  mariadb_network:

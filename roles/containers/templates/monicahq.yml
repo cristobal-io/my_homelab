@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  monica:
+    image: lscr.io/linuxserver/monica:latest
+    container_name: monica
+    environment:
+      APP_DISABLE_SIGNUP: true #optional
+      APP_ENV: "local" #optional
+      # APP_KEY: "{{ monicaapikey}}"
+      APP_URL: "http://localhost:8081"
+      DB_DATABASE: monica
+      DB_HOST: mariadb
+      DB_PASSWORD: {{ mysqlmonicapassword }}
+      DB_PORT: "3306"
+      DB_USERNAME: monicauser
+      PGID: "1000"
+      PUID: "1000"
+      # TRUSTED_PROXIES:  #optional
+      TZ: "Etc/UTC"
+      # MAIL_DRIVER: smtp
+      # MAIL_HOST: your-mail-host
+      # MAIL_PORT: 587
+      # MAIL_USERNAME: your-email@example.com
+      # MAIL_PASSWORD: your-email-password
+      # MAIL_ENCRYPTION: tls
+      # MAIL_FROM_ADDRESS: your-email@example.com
+      # MAIL_FROM_NAME: Monica
+    ports:
+{% for port in monicahq_ports %}
+      - "{{ port }}"
+{% endfor %}
+    volumes:
+{% for volume in monicahq_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    networks:
+      - mariadb_network
+    restart: unless-stopped
+
+volumes:
+  monica_data:
+
+networks:
+  mariadb_network:

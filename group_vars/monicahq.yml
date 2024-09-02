@@ -1,0 +1,5 @@
+monicahq_volumes:
+  - "{{ docker_dir }}/monica_data:/var/www/html/storage"
+monicahq_ports:
+  - "8081:80"
+  # - "443:443"

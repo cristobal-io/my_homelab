@@ -71,6 +71,8 @@ services:
   - homarr
   - sonarr
   - mysql
+  - mariadb
+  - monicahq
 
 #
 # Packages

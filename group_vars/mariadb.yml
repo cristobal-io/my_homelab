@@ -1,0 +1,2 @@
+mariadb_volumes:
+  - "{{ docker_dir }}/mariadb/config:/config"  # Syncthing's configuration and data
