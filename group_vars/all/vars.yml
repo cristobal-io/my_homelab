@@ -74,6 +74,7 @@ services:
   - mariadb
   - monicahq
   - lidarr
+  - readarr
 
 #
 # Packages

@@ -1,0 +1,6 @@
+readarr_ports:
+  - "8787:8787"
+readarr_volumes:
+  - "{{ docker_dir }}/readarr:/config"
+  - "{{ raid_dir }}/media/books:/books" #optional
+  - "{{ raid_dir }}/media:/data"  # This should match the path used by Transmission
