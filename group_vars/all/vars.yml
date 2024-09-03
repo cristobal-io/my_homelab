@@ -73,6 +73,7 @@ services:
   - mysql
   - mariadb
   - monicahq
+  - lidarr
 
 #
 # Packages

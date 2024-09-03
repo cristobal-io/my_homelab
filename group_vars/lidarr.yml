@@ -1,0 +1,7 @@
+lidarr_ports:
+  - "8686:8686"
+
+lidarr_volumes:
+  - "{{ docker_dir }}/lidarr:/config"
+  - "{{ raid_dir }}/media/music:/music" #optional
+  - "{{ raid_dir }}/media:/data"  # This should match the path used by Transmission
