@@ -1,0 +1,23 @@
+# Define the root directory for TeslaMate
+teslamate_dir: "{{ docker_dir }}/teslamate"
+
+# Define the ports for TeslaMate services
+teslamate_ports:
+  - "4000:4000"  # TeslaMate Web UI
+
+grafana_ports:
+  - "3000:3000"  # Grafana Web UI
+
+# Define the volumes for TeslaMate services
+teslamate_volumes:
+  - "{{ teslamate_dir }}/import:/opt/app/import"  # TeslaMate import directory
+
+database_volumes:
+  - "{{ teslamate_dir }}/db:/var/lib/postgresql/data"  # PostgreSQL data directory
+
+grafana_volumes:
+  - "{{ teslamate_dir }}/grafana:/var/lib/grafana"  # Grafana data directory
+
+mosquitto_volumes:
+  - "{{ teslamate_dir }}/mosquitto/config:/mosquitto/config"  # Mosquitto configuration directory
+  - "{{ teslamate_dir }}/mosquitto/data:/mosquitto/data"  # Mosquitto data directory

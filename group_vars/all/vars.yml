@@ -76,6 +76,7 @@ services:
   - lidarr
   - readarr
   - dashdot
+  - teslamate
 
 #
 # Packages

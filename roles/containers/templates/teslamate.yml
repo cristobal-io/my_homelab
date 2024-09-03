@@ -1,0 +1,68 @@
+services:
+  teslamate:
+    image: teslamate/teslamate:latest
+    restart: always
+    environment:
+      - ENCRYPTION_KEY={{ teslamatesecretkey }} #replace with a secure key to encrypt your Tesla API tokens
+      - DATABASE_USER=teslamate
+      - DATABASE_PASS={{ teslamatedbpassword }} #insert your secure database password!
+      - DATABASE_NAME=teslamate
+      - DATABASE_HOST=database
+      - MQTT_HOST=mosquitto
+    ports:
+{% for port in teslamate_ports %}
+      - "{{ port }}"
+{% endfor %}
+    volumes:
+{% for volume in teslamate_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    cap_drop:
+      - all
+
+  database:
+    image: postgres:16
+    restart: always
+    environment:
+      - POSTGRES_USER=teslamate
+      - POSTGRES_PASSWORD={{ teslamatedbpassword }} #insert your secure database password!
+      - POSTGRES_DB=teslamate
+    volumes:
+{% for volume in database_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+
+  grafana:
+    image: teslamate/grafana:latest
+    restart: always
+    environment:
+      - DATABASE_USER=teslamate
+      - DATABASE_PASS={{ teslamatedbpassword }} #insert your secure database password!
+      - DATABASE_NAME=teslamate
+      - DATABASE_HOST=database
+    ports:
+{% for port in grafana_ports %}
+      - "{{ port }}"
+{% endfor %}
+    volumes:
+{% for volume in grafana_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: always
+    command: mosquitto -c /mosquitto-no-auth.conf
+    # ports:
+    #   - 1883:1883
+    volumes:
+{% for volume in mosquitto_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+
+volumes:
+  teslamate-db:
+  teslamate-grafana-data:
+  mosquitto-conf:
+  mosquitto-data:
