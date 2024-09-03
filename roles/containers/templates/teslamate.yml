@@ -1,5 +1,6 @@
 services:
   teslamate:
+    container_name: teslamate
     image: teslamate/teslamate:latest
     restart: always
     environment:
@@ -22,6 +23,7 @@ services:
 
   database:
     image: postgres:16
+    container_name: teslamate-db
     restart: always
     environment:
       - POSTGRES_USER=teslamate
@@ -34,6 +36,7 @@ services:
 
   grafana:
     image: teslamate/grafana:latest
+    container_name: teslamate-grafana
     restart: always
     environment:
       - DATABASE_USER=teslamate
@@ -48,10 +51,12 @@ services:
 {% for volume in grafana_volumes %}
       - "{{ volume }}"
 {% endfor %}
+    user: "1000:1000"  # Ensure this matches your PUID and PGID
 
 
   mosquitto:
     image: eclipse-mosquitto:2
+    container_name: teslamate-mosquitto
     restart: always
     command: mosquitto -c /mosquitto-no-auth.conf
     # ports:
