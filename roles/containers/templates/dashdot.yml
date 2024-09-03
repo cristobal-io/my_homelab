@@ -1,0 +1,11 @@
+services:
+  dash:
+    image: mauricenino/dashdot:latest
+    restart: unless-stopped
+    privileged: true
+    ports:
+{% for port in dashdot_ports %}
+      - "{{ port }}"
+{% endfor %}
+    volumes:
+      - /:/mnt/host:ro

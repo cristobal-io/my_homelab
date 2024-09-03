@@ -1,0 +1,4 @@
+dashdot_ports:
+  - "3001:3001"
+dashdot_volumes:
+  - "{{ docker_dir }}/dashdot:/app"

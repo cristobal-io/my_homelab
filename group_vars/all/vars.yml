@@ -75,6 +75,7 @@ services:
   - monicahq
   - lidarr
   - readarr
+  - dashdot
 
 #
 # Packages
