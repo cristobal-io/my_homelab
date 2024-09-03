@@ -11,6 +11,7 @@ services:
 {% for volume in homarr_volumes %}
       - "{{ volume }}"
 {% endfor %}
+      - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - PUID=1000 # Change to match your user's UID
       - PGID=1000 # Change to match your user's GID
