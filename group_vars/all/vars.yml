@@ -78,6 +78,7 @@ services:
   - dashdot
   - teslamate
   - jellyfin
+  - calibre
 #
 # Packages
 #

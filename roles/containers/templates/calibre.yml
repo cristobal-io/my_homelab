@@ -1,0 +1,35 @@
+---
+services:
+  calibre:
+    image: ghcr.io/linuxserver/calibre
+    container_name: calibre
+    environment:
+      - PUID=1000 #change this to your user's PID
+      - PGID=1000 #change this to your user's PGID
+    volumes:
+{% for volume in calibre_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    ports:
+{% for port in calibre_ports %}
+      - "{{ port }}"
+{% endfor %}
+    restart: unless-stopped
+
+  calibre-web:
+    image: ghcr.io/linuxserver/calibre-web
+    container_name: calibre-web
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+{% for volume in calibreweb_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    restart: unless-stopped
+    depends_on:
+      - calibre
+    ports:
+{% for port in calibreweb_ports %}
+      - "{{ port }}"
+{% endfor %}

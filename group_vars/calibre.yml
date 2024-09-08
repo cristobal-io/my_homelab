@@ -1,0 +1,17 @@
+calibre_ports:
+  - "9980:8080"
+  - "9981:8081"
+
+calibre_volumes:
+  - "{{ docker_dir }}/calibre/config:/config"
+  - "{{ docker_dir }}/calibre/upload:/uploads"
+  - "{{ docker_dir }}/calibre/plugins:/plugins"
+  - "{{ raid_dir }}/media/books:/Calibre_Library" #this is where your ebooks will
+
+calibreweb_ports:
+  - "9983:8083"
+
+
+calibreweb_volumes:
+  - "{{ docker_dir }}/calibre/calibre-web:/config"
+  - "{{ raid_dir }}/media/books:/books"
