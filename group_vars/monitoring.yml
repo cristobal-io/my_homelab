@@ -1,0 +1,22 @@
+# group_vars/monitoring.yml
+
+monitoring_prometheus_ports:
+  - "8990:9090"
+
+monitoring_grafana_ports:
+  - "8930:3000"
+
+monitoring_volumes:
+  - "{{ docker_dir }}/monitoring:/monitoring"
+  - "{{ docker_dir }}/monitoring/prometheus:/prometheus"
+  - "{{ docker_dir }}/monitoring/grafana:/var/lib/grafana"
+
+monitoring_prometheus_volumes:
+  - "{{ docker_dir }}/monitoring/prometheus:/prometheus"
+
+monitoring_grafana_volumes:
+  - "{{ docker_dir }}/monitoring/grafana:/var/lib/grafana"
+
+monitoring_grafana_admin_user: "admin"
+monitoring_grafana_admin_password: "{{ vault_monitoring_grafana_admin_password }}"
+guid: "1000"

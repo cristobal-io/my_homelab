@@ -81,6 +81,8 @@ services:
   - calibre
   # - paperlessngx
   - sftpgo
+  - monitoring
+
 #
 # Packages
 #
