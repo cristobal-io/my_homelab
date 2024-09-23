@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  sftpgo:
+    image: drakkan/sftpgo:latest
+    container_name: sftpgo
+    volumes:
+{% for volume in sftpgo_volumes %}
+      - "{{ volume }}"
+{% endfor %}
+    ports:
+{% for port in sftpgo_ports %}
+      - "{{ port }}"
+{% endfor %}
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - SFTPGO_WEBDAV_PORT=10080
+      # - SFTPGO_WEBDAV_CERT_FILE=
+      # - SFTPGO_WEBDAV_KEY_FILE=
+      - SFTPGO_DEFAULT_ADMIN_USERNAME=admin
+      - SFTPGO_DEFAULT_ADMIN_PASSWORD={{ sftpgo_default_admin_password }}
+    restart: unless-stopped

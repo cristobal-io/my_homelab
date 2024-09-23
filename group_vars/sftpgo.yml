@@ -1,0 +1,7 @@
+sftpgo_ports:
+  - "9880:8080"  # Web admin interface
+  - "2022:2022"  # SFTP port
+sftpgo_volumes:
+  - "{{ docker_dir }}/sftpgo/data:/srv/sftpgo/data"
+  - "{{ docker_dir }}/sftpgo/config:/srv/sftpgo/config"
+  - "{{ raid_dir }}:/srv/sftpgo/data/users"  # Mount your RAID directory

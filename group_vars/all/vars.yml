@@ -79,6 +79,8 @@ services:
   - teslamate
   - jellyfin
   - calibre
+  # - paperlessngx
+  - sftpgo
 #
 # Packages
 #
