@@ -3,6 +3,7 @@
 # Define variables
 INVENTORY = hosts
 PLAYBOOK = run.yml
+REQUIREMENTS = requirements.yml
 
 # Color definitions
 RESET = \033[0m
@@ -14,24 +15,29 @@ YELLOW = \033[33m
 # Default target: display help
 .DEFAULT_GOAL := help
 
+# Install Ansible requirements
+install-requirements:
+	@echo "$(BOLD)$(BLUE)Installing Ansible requirements...$(RESET)"
+	ansible-galaxy install -r $(REQUIREMENTS)
+
 # Edit secrets (opens the encrypted vault file for editing)
 edit-secrets:
-	@echo "Editing secrets in the Ansible vault..."
+	@echo "$(BOLD)$(BLUE)Editing secrets in the Ansible vault...$(RESET)"
 	ansible-vault edit group_vars/all/secret.yml
 
 # Run the Ansible playbook
-run-play:
-	@echo "Running Ansible playbook..."
+run-play: install-requirements
+	@echo "$(BOLD)$(BLUE)Running Ansible playbook...$(RESET)"
 	ansible-playbook -i $(INVENTORY) $(PLAYBOOK)
 
 # Run only the containers tag
-run-containers:
-	@echo "Running Ansible playbook with containers tag..."
+run-containers: install-requirements
+	@echo "$(BOLD)$(BLUE)Running Ansible playbook with containers tag...$(RESET)"
 	ansible-playbook -i $(INVENTORY) $(PLAYBOOK) --tags containers
 
 # Store the Ansible vault password in the system keychain
 store-password:
-	@echo "Storing Ansible vault password in the system keychain..."
+	@echo "$(BOLD)$(BLUE)Storing Ansible vault password in the system keychain...$(RESET)"
 	@read -p "Enter the Ansible vault password: " password; \
 	security add-generic-password -a "crgomo" -s "ansible-vault-password" -w "$$password"
 
@@ -40,13 +46,14 @@ help:
 	@echo "$(BOLD)$(BLUE)Ansible Automation Makefile$(RESET)"
 	@echo "$(BLUE)==============================$(RESET)"
 	@echo "$(BOLD)Available targets:$(RESET)"
-	@echo "  $(YELLOW)edit-secrets$(RESET)    : Edit the encrypted Ansible vault"
-	@echo "  $(YELLOW)run-play$(RESET)        : Run the complete Ansible playbook"
-	@echo "  $(YELLOW)run-containers$(RESET)  : Run only the containers tag in the playbook"
-	@echo "  $(YELLOW)store-password$(RESET)  : Store the Ansible vault password in the system keychain"
-	@echo "  $(YELLOW)help$(RESET)            : Display this help message"
+	@echo "  $(YELLOW)install-requirements$(RESET): Install Ansible Galaxy requirements"
+	@echo "  $(YELLOW)edit-secrets$(RESET)        : Edit the encrypted Ansible vault"
+	@echo "  $(YELLOW)run-play$(RESET)            : Run the complete Ansible playbook"
+	@echo "  $(YELLOW)run-containers$(RESET)      : Run only the containers tag in the playbook"
+	@echo "  $(YELLOW)store-password$(RESET)      : Store the Ansible vault password in the system keychain"
+	@echo "  $(YELLOW)help$(RESET)                : Display this help message"
 	@echo ""
 	@echo "$(BOLD)$(GREEN)Usage:$(RESET) make $(YELLOW)<target>$(RESET)"
 	@echo "Running make without a target will display this help message."
 
-.PHONY: edit-secrets run-play run-containers store-password help
+.PHONY: install-requirements edit-secrets run-play run-containers store-password help
