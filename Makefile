@@ -3,7 +3,6 @@
 # Define variables
 INVENTORY = hosts
 PLAYBOOK = run.yml
-VAULT_PASSWORD_FILE = pass.sh
 
 # Color definitions
 RESET = \033[0m
@@ -18,12 +17,17 @@ YELLOW = \033[33m
 # Edit secrets (opens the encrypted vault file for editing)
 edit-secrets:
 	@echo "Editing secrets in the Ansible vault..."
-	ansible-vault edit group_vars/all/secret.yml --vault-password-file=$(VAULT_PASSWORD_FILE)
+	ansible-vault edit group_vars/all/secret.yml
 
 # Run the Ansible playbook
 run-play:
 	@echo "Running Ansible playbook..."
-	ansible-playbook -i $(INVENTORY) $(PLAYBOOK) --vault-password-file=$(VAULT_PASSWORD_FILE)
+	ansible-playbook -i $(INVENTORY) $(PLAYBOOK)
+
+# Run only the containers tag
+run-containers:
+	@echo "Running Ansible playbook with containers tag..."
+	ansible-playbook -i $(INVENTORY) $(PLAYBOOK) --tags containers
 
 # Store the Ansible vault password in the system keychain
 store-password:
@@ -36,12 +40,13 @@ help:
 	@echo "$(BOLD)$(BLUE)Ansible Automation Makefile$(RESET)"
 	@echo "$(BLUE)==============================$(RESET)"
 	@echo "$(BOLD)Available targets:$(RESET)"
-	@echo "  $(YELLOW)edit-secrets$(RESET)  : Edit the encrypted Ansible vault"
-	@echo "  $(YELLOW)run-play$(RESET)      : Run the Ansible playbook"
-	@echo "  $(YELLOW)store-password$(RESET): Store the Ansible vault password in the system keychain"
-	@echo "  $(YELLOW)help$(RESET)          : Display this help message"
+	@echo "  $(YELLOW)edit-secrets$(RESET)    : Edit the encrypted Ansible vault"
+	@echo "  $(YELLOW)run-play$(RESET)        : Run the complete Ansible playbook"
+	@echo "  $(YELLOW)run-containers$(RESET)  : Run only the containers tag in the playbook"
+	@echo "  $(YELLOW)store-password$(RESET)  : Store the Ansible vault password in the system keychain"
+	@echo "  $(YELLOW)help$(RESET)            : Display this help message"
 	@echo ""
 	@echo "$(BOLD)$(GREEN)Usage:$(RESET) make $(YELLOW)<target>$(RESET)"
 	@echo "Running make without a target will display this help message."
 
-.PHONY: edit-secrets run-play store-password help
+.PHONY: edit-secrets run-play run-containers store-password help
