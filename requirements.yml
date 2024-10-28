@@ -2,5 +2,7 @@
 roles:
     - name: geerlingguy.security
     - name: geerlingguy.docker
+    - name: brianhartsock.avahi
     # - name: geerlingguy.ntp
     # - name: chriswayg.msmtp-mailer
+

@@ -22,7 +22,9 @@
     - role: system
       tags:
         - system
-
+    - role: brianhartsock.avahi
+      tags:
+        - avahi
     # - role: neovim
     #   tags:
     #       - neovim
