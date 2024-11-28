@@ -9,3 +9,4 @@ jellyfin_volumes:
   - "{{ raid_dir }}/media/tv:/data/tvshows"
   - "{{ raid_dir }}/media/movies:/data/movies"
   - "{{ raid_dir }}/media/music:/data/music"
+  - "{{ raid_dir }}/media/youtube-music:/data/youtube-music"
