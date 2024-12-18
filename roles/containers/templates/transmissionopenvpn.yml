@@ -5,6 +5,12 @@ services:
     image: haugene/transmission-openvpn:latest
     cap_add:
       - NET_ADMIN
+      - SYS_MODULE
+    devices:
+      - /dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    privileged: true
     environment:
       - OPENVPN_PROVIDER=PIA
       - OPENVPN_USERNAME={{ openvpn_username }}
@@ -16,7 +22,7 @@ services:
       - TRANSMISSION_WEB_UI=combustion
       - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
       - TRANSMISSION_RPC_USERNAME={{ transmission_username }}
-      - TRANSMISSION_RPC_PASSWORD={{ transmission_password  }}
+      - TRANSMISSION_RPC_PASSWORD={{ transmission_password }}
 {% if app_cidr %}
     networks:
       app:
