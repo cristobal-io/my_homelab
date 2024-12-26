@@ -49,3 +49,7 @@
       when: tailscale_enabled | default(false)
       tags:
           - tailscale
+
+    - role: spotdl
+      tags:
+        - spotdl

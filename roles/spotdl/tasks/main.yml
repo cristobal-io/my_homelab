@@ -1,0 +1,144 @@
+---
+# First, ensure pip is installed and up to date
+- name: Ensure pip is installed
+  apt:
+    name: python3-pip
+    state: present
+
+# Install system dependencies
+- name: Install required system packages
+  apt:
+    name:
+      - python3-venv
+      - ffmpeg  # Required for audio conversion
+    state: present
+
+# Create a virtual environment for spotdl
+- name: Create Python virtual environment
+  become: yes
+  become_user: "{{ username }}"
+  command: python3 -m venv /home/{{ username }}/.venvs/spotdl
+  args:
+    creates: "/home/{{ username }}/.venvs/spotdl"
+
+# Install spotdl in the virtual environment
+- name: Install spotdl in virtual environment
+  become: yes
+  become_user: "{{ username }}"
+  pip:
+    name: spotdl
+    state: latest
+    virtualenv: "/home/{{ username }}/.venvs/spotdl"
+
+# Create a wrapper script for spotdl
+- name: Create spotdl wrapper script
+  copy:
+    dest: /usr/local/bin/spotdl
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      source /home/{{ username }}/.venvs/spotdl/bin/activate
+      python -m spotdl "$@"
+
+- name: Create playlist generation script
+  copy:
+    dest: /usr/local/bin/generate_playlist.sh
+    mode: '0755'
+    content: |
+      #!/bin/bash
+
+      DIR="$1"
+      if [ -z "$DIR" ]; then
+          echo "Usage: $0 <directory>"
+          exit 1
+      fi
+
+      cd "$DIR"
+
+      # Get directory name without trailing slash
+      dir_name=$(basename "$DIR")
+      playlist_file="$dir_name.m3u"
+
+      # Create/update M3U playlist
+      echo "#EXTM3U" > "$playlist_file"
+      echo "#PLAYLIST:$dir_name" >> "$playlist_file"
+
+      # Add all music files to the playlist with relative paths
+      find . -type f \( -name "*.mp3" -o -name "*.m4a" -o -name "*.opus" \) -not -path "*/\.*" | sort | while read -r file; do
+          # Remove the './' from the beginning of the path
+          file="${file#./}"
+          # Add the file to the playlist if it's not already there
+          if ! grep -Fxq "$file" "$playlist_file"; then
+              echo "$file" >> "$playlist_file"
+          fi
+      done
+
+- name: Ensure youtube-music directory exists
+  file:
+    path: "{{ raid_dir }}/media/youtube-music"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+
+# Create all playlist directories
+- name: Ensure playlist directories exist
+  file:
+    path: "{{ raid_dir }}/media/youtube-music/{{ item.key }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+  loop: "{{ spotify_playlists | dict2items }}"
+
+- name: Create initial sync files and perform first sync
+  become: yes
+  become_user: "{{ username }}"
+  block:
+    - name: Create initial sync files
+      shell: |
+        cd "{{ raid_dir }}/media/youtube-music/{{ item.key }}" && \
+        spotdl sync "{{ item.value }}" --save-file "{{ item.key }}.sync.spotdl"
+      args:
+        creates: "{{ raid_dir }}/media/youtube-music/{{ item.key }}/{{ item.key }}.sync.spotdl"
+      loop: "{{ spotify_playlists | dict2items }}"
+
+# Generate initial playlists
+- name: Generate initial playlists
+  become: yes
+  become_user: "{{ username }}"
+  shell: |
+    /usr/local/bin/generate_playlist.sh "{{ raid_dir }}/media/youtube-music/{{ item.key }}"
+  loop: "{{ spotify_playlists | dict2items }}"
+
+- name: Create sync script
+  copy:
+    dest: /usr/local/bin/sync_spotify_playlists.sh
+    mode: '0755'
+    content: |
+      #!/bin/bash
+
+      cd "{{ raid_dir }}/media/youtube-music"
+
+      for dir in */; do
+        if [ -f "${dir}/${dir%/}.sync.spotdl" ]; then
+          echo "Processing ${dir%/}..."
+          cd "$dir"
+
+          # Sync the playlist
+          spotdl sync "${dir%/}.sync.spotdl" >> sync.log 2>&1
+
+          # Update the M3U playlist using the generate_playlist.sh script
+          /usr/local/bin/generate_playlist.sh "$PWD"
+
+          cd ..
+        fi
+      done
+
+- name: Set up daily cron job for syncing
+  cron:
+    name: "Sync Spotify playlists"
+    hour: "3"
+    minute: "0"
+    user: "{{ username }}"
+    job: "/usr/local/bin/sync_spotify_playlists.sh"
